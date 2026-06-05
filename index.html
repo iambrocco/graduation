@@ -325,7 +325,7 @@
         async function loadFromFirestore() {
             await waitForFirebase();
             const urlParams = new URLSearchParams(window.location.search);
-            const userSlug = (urlParams.get("id") || urlParams.get("name") || "ayham").trim().toLowerCase();
+            const userSlug = (urlParams.get("id") || urlParams.get("name") || "none").trim().toLowerCase();
 
             const docRef = window.firestoreDoc(window.yearbookDb, "seniors", userSlug);
             const docSnap = await window.firestoreGetDoc(docRef);
