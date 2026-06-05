@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digital Yearbook | Memory</title>
+
+    <script>
+        tailwind = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Linked directly to CSS variables modified by your Admin Panel data
+                        ink: "var(--color-ink, #172033)",
+                        muted: "#6b7280",
+                        paper: "#fffaf0",
+                        cream: "var(--color-cream, #f7efe3)",
+                        gold: "var(--color-gold, #b98932)",
+                        wine: "var(--color-wine, #8f294b)"
+                    },
+                    boxShadow: {
+                        soft: "0 20px 50px rgba(23, 32, 51, .08)",
+                        paper: "0 22px 60px rgba(86, 57, 20, .18)"
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyClevQU2L5hedZTHTwmEzdOampkozfnvDA",
+            authDomain: "ahmadraoofweh-db.firebaseapp.com",
+            projectId: "ahmadraoofweh-db",
+            storageBucket: "ahmadraoofweh-db.firebasestorage.app",
+            messagingSenderId: "300018832228",
+            appId: "1:300018832228:web:aacd7155f84d0046a7a071"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.yearbookDb = getFirestore(app);
+        window.firestoreDoc = doc;
+        window.firestoreGetDoc = getDoc;
+        window.dispatchEvent(new Event("firebase-ready"));
+    </script>
+
+    <style>
+        @font-face {
+            font-family: "LyonArabicDisplay";
+            src: url("/lad-b.otf") format("opentype");
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "LyonArabicSlanted";
+            src: url("/last-r.otf") format("opentype");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: "LyonArabicText";
+            src: url("/lat-r.otf") format("opentype");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --accent: #b98932;
+            --accent-soft: rgba(185, 137, 50, .16);
+            --paper-line: rgba(139, 92, 37, .13);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--color-ink, #172033);
+            font-family: "LyonArabicText", ui-serif, Georgia, serif;
+            background: var(--body-bg, radial-gradient(circle at 10% 15%, rgba(255, 214, 165, .55), transparent 40%), radial-gradient(circle at 90% 20%, rgba(203, 172, 249, .35), transparent 40%), linear-gradient(135deg, #fbf7f0 0%, #f7efe3 50%, #ede3d0 100%));
+        }
+
+        .display-font {
+            font-family: "LyonArabicDisplay", ui-serif, Georgia, serif;
+        }
+
+        .slanted-font {
+            font-family: "LyonArabicSlanted", "LyonArabicText", ui-serif, Georgia, serif;
+        }
+
+        .noise::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .28;
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");
+            z-index: 1;
+        }
+
+        .paper {
+            background:
+                linear-gradient(90deg, rgba(185, 137, 50, .11) 0 1px, transparent 1px 100%),
+                linear-gradient(var(--paper-line) 1px, transparent 1px),
+                radial-gradient(circle at 18% 12%, rgba(255, 255, 255, .95), transparent 30%),
+                #fffaf0;
+            background-size: 100% 100%, 100% 2.35rem, 100% 100%, 100% 100%;
+            background-position: 3.4rem 0, 0 1.35rem, 0 0, 0 0;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .7s ease, transform .7s ease;
+        }
+
+        .is-ready .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: rgba(23, 32, 51, .05);
+        }
+
+        .skeleton::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent);
+            animation: shimmer 1.4s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+            50% { transform: translate3d(15px, -25px, 0) rotate(12deg); }
+        }
+
+        .drift {
+            animation: drift 9s ease-in-out infinite;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #fff; }
+            .paper { box-shadow: none !important; }
+        }
+    </style>
+</head>
+
+<body class="noise relative">
+    <div id="ambient-icons" class="pointer-events-none fixed inset-0 z-0 overflow-hidden"></div>
+
+    <div id="loading-screen" class="fixed inset-0 z-50 grid place-items-center bg-stone-100/90 backdrop-blur-xl transition-opacity duration-500">
+        <div class="w-[min(88vw,440px)] rounded-[2rem] border border-stone-200 bg-white p-7 shadow-soft">
+            <div class="mb-5 flex items-center gap-3">
+                <div class="grid h-12 w-12 place-items-center rounded-2xl bg-stone-900 text-white shadow-lg">
+                    <i data-lucide="book-open-text" class="h-6 w-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[.35em] text-stone-400">Digital Yearbook</p>
+                    <h1 class="display-font text-2xl text-stone-900">Loading memory</h1>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div class="skeleton h-4 w-11/12 rounded-full"></div>
+                <div class="skeleton h-4 w-9/12 rounded-full"></div>
+                <div class="skeleton h-4 w-7/12 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="error-screen" class="hidden fixed inset-0 z-50 grid place-items-center bg-stone-100 p-6">
+        <div class="max-w-md rounded-[2rem] bg-white p-8 text-center shadow-soft border border-stone-200">
+            <div class="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-full bg-red-50 text-red-500">
+                <i data-lucide="triangle-alert" class="h-7 w-7"></i>
+            </div>
+            <h2 class="display-font mb-2 text-3xl text-stone-900">Memory not found</h2>
+            <p class="text-muted">Check the link, especially the <strong>?id=</strong> part, then try again.</p>
+        </div>
+    </div>
+
+    <main id="app" class="is-loading relative z-10 min-h-screen px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+        <section class="mx-auto max-w-5xl">
+            <header class="reveal mb-8 overflow-hidden rounded-[2rem] border border-stone-200/80 bg-white p-6 shadow-soft sm:p-8 lg:p-10">
+                <div class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="max-w-3xl">
+                        <div class="mb-5 inline-flex items-center gap-2 rounded-full bg-cream/30 px-4 py-2 text-xs font-bold uppercase tracking-[.25em] text-gold border border-gold/10">
+                            <i data-lucide="graduation-cap" class="h-4 w-4"></i>
+                            <span id="meta-class-top">Class of 2026</span>
+                        </div>
+                        <h1 class="display-font text-5xl leading-[.95] tracking-tight text-ink sm:text-6xl lg:text-7xl">
+                            A page from your story.
+                        </h1>
+                        <p class="mt-5 max-w-2xl text-lg leading-8 text-stone-600">
+                            A small note, saved like ink on paper, for the people who made senior year unforgettable.
+                        </p>
+                    </div>
+                    <div class="flex gap-3 no-print">
+                        <button id="copy-link" class="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-bold text-black shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0">
+                            <i data-lucide="link" class="h-4 w-4"></i>
+                            Copy link
+                        </button>
+                        <button onclick="window.print()" class="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-5 py-3 text-sm font-bold text-ink shadow-sm transition hover:-translate-y-0.5 hover:bg-white active:translate-y-0">
+                            <i data-lucide="download" class="h-4 w-4"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <article class="reveal relative rounded-[2rem] border border-stone-200/80 bg-white p-3 shadow-soft sm:p-5" style="transition-delay: .12s;">
+                <div class="paper relative min-h-[580px] rounded-[1.65rem] border border-[#e8dcc9] px-6 py-8 shadow-paper sm:px-10 sm:py-12 lg:px-14">
+                    <div class="absolute left-7 top-0 h-full w-px bg-red-200/70"></div>
+                    
+                    <div class="relative mb-8 flex flex-col gap-8 border-b border-dashed border-amber-900/15 pb-8 lg:flex-row lg:items-start lg:justify-between">
+                        
+                        <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:gap-6 sm:text-left max-w-xl">
+                            <div class="relative shrink-0 -rotate-2 rounded-2xl bg-white p-2.5 shadow-md border border-stone-200/60 transition hover:rotate-0 duration-300">
+                                <div id="avatar-wrap" class="grid h-24 w-24 place-items-center overflow-hidden rounded-xl bg-stone-50 text-stone-400">
+                                    <i data-lucide="user-round" class="h-10 w-10"></i>
+                                </div>
+                                <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 h-3.5 w-10 rotate-12 bg-amber-100/50 border border-amber-200/20 backdrop-blur-sm"></div>
+                            </div>
+                            
+                            <div class="space-y-1.5 pt-1">
+                                <span class="inline-block text-xs font-bold uppercase tracking-[.25em] text-gold">Senior</span>
+                                <h2 id="user-name" class="display-font text-3xl leading-none text-ink sm:text-4xl">Loading...</h2>
+                                <blockquote id="user-quote" class="slanted-font text-lg leading-relaxed text-wine/90 italic"></blockquote>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start justify-between gap-5 self-stretch lg:self-auto lg:flex-col lg:justify-between lg:items-end">
+                            <div class="hidden rotate-6 rounded-2xl bg-white p-3 text-gold shadow-md sm:block border border-stone-100 lg:mb-1">
+                                <i data-lucide="paperclip" class="h-6 w-6"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-bold uppercase tracking-wider text-stone-500/80 border-b border-stone-200/40 pb-4">
+                        <span class="flex items-center gap-2"><i data-lucide="pen-line" class="h-3.5 w-3.5 text-gold"></i> Written by: <strong id="meta-author-small" class="text-ink font-bold">...</strong></span>
+                        <span class="hidden sm:inline text-stone-300">|</span>
+                        <span class="flex items-center gap-2"><i data-lucide="clock-3" class="h-3.5 w-3.5 text-gold"></i> Timeline: <strong id="meta-timeline" class="text-ink font-bold">...</strong></span>
+                    </div>
+                    
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[.32em] text-gold">Memory note</p>
+                        <h3 class="display-font mt-2 text-4xl text-ink sm:text-5xl">،صديقي <span id="dear-name">friend</span></h3>
+                    </div>
+                    <div id="message-content" class="space-y-6 text-right text-xl leading-[2.15] text-stone-800 sm:text-2xl" dir="rtl"></div>
+                    
+                    <footer class="mt-12 border-t border-dashed border-amber-900/20 pt-7 flex flex-wrap items-end justify-between gap-4" dir="ltr">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[.32em] text-stone-400">With love,</p>
+                            <p id="meta-author" class="slanted-font mt-2 text-4xl text-wine">...</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold uppercase tracking-[.32em] text-stone-400">Keep in touch</p>
+                            <p id="meta-phone" class="font-bold text-ink mt-2 text-base tracking-wide">...</p>
+                        </div>
+                    </footer>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+
+        const fallbackData = {
+            name: "Friend",
+            quote: "The best memories are the ones we did not plan.",
+            classYear: "Class of 2026",
+            author: "أحمد رؤوف وهبي",
+            phone: "+961 76 879 460",
+            timeline: "Senior Year Journey",
+            paragraphs: ["This memory is still loading. If it stays here, check your Firestore document."],
+            icons: [
+                { icon: "sparkles", pos: "left-[4%] top-[12%]", size: "h-8 w-8", color: "text-gold/30" },
+                { icon: "star", pos: "right-[6%] top-[45%]", size: "h-7 w-7", color: "text-wine/20" },
+                { icon: "heart", pos: "left-[8%] bottom-[15%]", size: "h-6 w-6", color: "text-gold/25" },
+                { icon: "party-popper", pos: "right-[5%] bottom-[8%]", size: "h-7 w-7", color: "text-wine/15" }
+            ]
+        };
+
+        function waitForFirebase() {
+            if (window.yearbookDb && window.firestoreDoc && window.firestoreGetDoc) return Promise.resolve();
+            return new Promise(resolve => window.addEventListener("firebase-ready", resolve, { once: true }));
+        }
+
+        function escapeHtml(value = "") {
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        async function loadFromFirestore() {
+            await waitForFirebase();
+            const urlParams = new URLSearchParams(window.location.search);
+            const userSlug = (urlParams.get("id") || urlParams.get("name") || "ayham").trim().toLowerCase();
+
+            const docRef = window.firestoreDoc(window.yearbookDb, "seniors", userSlug);
+            const docSnap = await window.firestoreGetDoc(docRef);
+
+            if (!docSnap.exists()) return null;
+            return docSnap.data();
+        }
+
+        function applyAdminTheme(data) {
+            const root = document.documentElement;
+            
+            if (data.primaryColor || data.inkColor) root.style.setProperty('--color-ink', data.primaryColor || data.inkColor);
+            if (data.accentColor || data.goldColor) root.style.setProperty('--color-gold', data.accentColor || data.goldColor);
+            if (data.secondaryColor || data.wineColor) root.style.setProperty('--color-wine', data.secondaryColor || data.wineColor);
+            
+            if (data.backgroundColor || data.creamColor) {
+                const bg = data.backgroundColor || data.creamColor;
+                root.style.setProperty('--color-cream', bg);
+                if (!bg.includes('gradient')) {
+                    root.style.setProperty('--body-bg', `linear-gradient(135deg, ${bg}f2 0%, ${bg} 100%)`);
+                } else {
+                    root.style.setProperty('--body-bg', bg);
+                }
+            }
+
+            const themeName = String(data.theme || data.themeName || "").toLowerCase().trim();
+            if (themeName === "wine" || themeName === "burgundy") {
+                root.style.setProperty('--color-ink', '#3b0d1a');
+                root.style.setProperty('--color-gold', '#c99a43');
+                root.style.setProperty('--color-wine', '#8f294b');
+                root.style.setProperty('--color-cream', '#fcf6f8');
+                root.style.setProperty('--body-bg', 'linear-gradient(135deg, #fbf7f8 0%, #f7eef1 100%)');
+            } else if (themeName === "gold" || themeName === "royal") {
+                root.style.setProperty('--color-ink', '#261c0a');
+                root.style.setProperty('--color-gold', '#b98932');
+                root.style.setProperty('--color-wine', '#614310');
+                root.style.setProperty('--color-cream', '#faf7f2');
+                root.style.setProperty('--body-bg', 'linear-gradient(135deg, #f9f5ed 0%, #f3ebd9 100%)');
+            } else if (themeName === "emerald" || themeName === "green") {
+                root.style.setProperty('--color-ink', '#0f2419');
+                root.style.setProperty('--color-gold', '#a38044');
+                root.style.setProperty('--color-wine', '#1b4d3e');
+                root.style.setProperty('--color-cream', '#f4f7f5');
+                root.style.setProperty('--body-bg', 'linear-gradient(135deg, #f3f7f4 0%, #e6eee9 100%)');
+            }
+        }
+
+        function renderAvatar(data) {
+            const avatarWrap = $("avatar-wrap");
+            const image = data.photo || data.image || data.avatar;
+
+            if (!image) return;
+            avatarWrap.innerHTML = `<img src="${escapeHtml(image)}" alt="${escapeHtml(data.name || "Student")}" class="h-full w-full object-cover" />`;
+        }
+
+        function renderIcons(data) {
+            const wrap = $("ambient-icons");
+            const icons = data.icons || fallbackData.icons;
+
+            wrap.innerHTML = icons.map((item, index) => `
+                <div class="absolute drift ${escapeHtml(item.pos || "right-10 top-10")}" style="animation-delay:${index * 1.2}s">
+                    <i data-lucide="${escapeHtml(item.icon || "sparkles")}" class="${escapeHtml(item.size || "h-7 w-7")} ${escapeHtml(item.color || "text-gold/30")}"></i>
+                </div>
+            `).join("");
+        }
+
+        function renderData(rawData) {
+            const data = { ...fallbackData, ...rawData };
+            const firstName = String(data.name || "friend").split(" ");
+
+            applyAdminTheme(data);
+
+            $("user-name").textContent = data.name || "Friend";
+            $("dear-name").textContent = firstName;
+            $("user-quote").textContent = data.quote ? `“${data.quote}”` : "";
+            $("meta-class-top").textContent = data.classYear || "Class of 2026";
+            $("meta-author").textContent = data.author || "Anonymous";
+            $("meta-author-small").textContent = data.author || "Anonymous";
+            $("meta-phone").textContent = data.phone || "N/A";
+            $("meta-timeline").textContent = data.timeline || "Senior Year Journey";
+
+            const paragraphs = Array.isArray(data.paragraphs) ? data.paragraphs : [data.message || ""];
+            $("message-content").innerHTML = paragraphs
+                .filter(Boolean)
+                .map(p => `<p>${escapeHtml(p)}</p>`)
+                .join("");
+
+            renderAvatar(data);
+            renderIcons(data);
+
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function showContent() {
+            const loader = $("loading-screen");
+            loader.classList.add("opacity-0", "pointer-events-none");
+            document.body.classList.add("is-ready");
+            setTimeout(() => loader.remove(), 520);
+        }
+
+        function showError() {
+            $("loading-screen").classList.add("hidden");
+            $("error-screen").classList.remove("hidden");
+            if (window.lucide) lucide.createIcons();
+        }
+
+        async function init() {
+            try {
+                if (window.lucide) lucide.createIcons();
+                const data = await loadFromFirestore();
+                if (!data) return showError();
+                renderData(data);
+                showContent();
+            } catch (error) {
+                console.error("Error loading memory:", error);
+                showError();
+            }
+        }
+
+        $("copy-link").addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                $("copy-link").innerHTML = `<i data-lucide="check" class="h-4 w-4"></i> Copied`;
+                if (window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    $("copy-link").innerHTML = `<i data-lucide="link" class="h-4 w-4"></i> Copy link`;
+                    if (window.lucide) lucide.createIcons();
+                }, 1600);
+            } catch {
+                alert("Could not copy the link.");
+            }
+        });
+
+        window.addEventListener("DOMContentLoaded", init);
+    </script>
+</body>
+
+</html>
